@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Love Flower for Resh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #play-button {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(255, 105, 180, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #play-button::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid white;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 5px;
+        }
+        #flower-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .flower {
+            position: absolute;
+            transform-origin: center;
+        }
+        .petal {
+            position: absolute;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.5);
+            opacity: 0;
+            transform: scale(0);
+        }
+        .center {
+            position: absolute;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+        #message {
+            color: #ffb6c1;
+            font-family: 'Great Vibes', cursive;
+            font-size: 3em;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(255, 182, 193, 0.5);
+            opacity: 0;
+            z-index: 5;
+        }
+        .falling-petal {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: fall 5s linear infinite;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="play-button"></button>
+    <div id="flower-container"></div>
+    <div id="message">I Love You Resh<br>You Are My Everything</div>
+    <audio id="bg-music" loop>
+        <source src="song1.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        const playButton = document.getElementById('play-button');
+        const message = document.getElementById('message');
+        const flowerContainer = document.getElementById('flower-container');
+        const audio = document.getElementById('bg-music');
+
+        playButton.addEventListener('click', () => {
+            audio.play();
+            playButton.style.display = 'none';
+            setTimeout(() => {
+                message.style.transition = 'opacity 3s';
+                message.style.opacity = '1';
+            }, 1000);
+            createFlowers();
+            createFallingPetals();
+        });
+
+        function createFlowers() {
+            function createFlower(pos) {
+                const flower = document.createElement('div');
+                flower.classList.add('flower');
+                flower.style.left = `${pos.x}px`;
+                flower.style.top = `${pos.y}px`;
+
+                const scale = pos.size;
+                const petalCount = 6;
+                const petalSize = 40 * scale;
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.classList.add('petal');
+                    petal.style.width = `${petalSize}px`;
+                    petal.style.height = `${petalSize}px`;
+                    petal.style.left = `calc(50% - ${petalSize / 2}px)`;
+                    petal.style.top = `calc(50% - ${petalSize / 2}px)`;
+                    petal.style.transform = `rotate(${(360 / petalCount) * i}deg) translate(0, -40px) scale(0)`;
+                    flower.appendChild(petal);
+                }
+                const centerSize = 30 * scale;
+                const center = document.createElement('div');
+                center.classList.add('center');
+                center.style.width = `${centerSize}px`;
+                center.style.height = `${centerSize}px`;
+                center.style.left = '50%';
+                center.style.top = '50%';
+                center.style.transform = 'translate(-50%, -50%)';
+                flower.appendChild(center);
+
+                flowerContainer.appendChild(flower);
+
+                setTimeout(() => {
+                    const petals = flower.querySelectorAll('.petal');
+                    petals.forEach((petal, i) => {
+                        setTimeout(() => {
+                            petal.style.transition = 'all 1s ease-out';
+                            petal.style.opacity = '1';
+                            petal.style.transform = `rotate(${(360 / petalCount) * i}deg) translate(0, -40px) scale(1)`;
+                        }, i * 100);
+                    });
+                }, 500);
+            }
+
+            const flowerPositions = [
+                { x: window.innerWidth / 2 - 200, y: window.innerHeight / 2 - 200, size: 0.8 },
+                { x: window.innerWidth / 2 + 100, y: window.innerHeight / 2 - 200, size: 0.8 },
+                { x: window.innerWidth / 2 - 150, y: window.innerHeight / 2 + 100, size: 0.9 },
+                { x: window.innerWidth / 2 + 150, y: window.innerHeight / 2 + 100, size: 0.9 }
+            ];
+            flowerPositions.forEach(createFlower);
+        }
+
+        function createFallingPetals() {
+            const petalColors = ['#FF69B4', '#FF1493', '#DB7093'];
+            function createPetal() {
+                const petal = document.createElement('div');
+                petal.classList.add('falling-petal');
+                petal.style.left = `${Math.random() * 100}vw`;
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                petal.style.background = `linear-gradient(135deg, ${petalColors[Math.floor(Math.random() * petalColors.length)]}, #FFB6C1)`;
+                document.body.appendChild(petal);
+                setTimeout(() => petal.remove(), 5000);
+            }
+            setInterval(createPetal, 300);
+        }
+    </script>
+</body>
+</html>
